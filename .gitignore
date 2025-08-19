@@ -1,0 +1,17 @@
+*.pyc
+db.sqlite3
+0*.py
+.DS_Store
+my_env
+.idea
+__pycache__/
+**/__pycache__/
+*.cpython-*.pyc
+*.py[cod]
+*$py.class
+venv
+.idea
+config.ini
+node_modules
+credentials.json
+token.json

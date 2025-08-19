@@ -1,0 +1,20 @@
+{% extends 'website/base.html' %}
+
+{% block title %} Request Service | HVAC & More {% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+    <div id="page-header" class="container text-center"> 
+        <h1 id="topic">Place a Service Request</h1>
+        <p id="explanation"><em> How can we help you? </em></p>
+    </div>
+    <form method="POST">
+        {{ form }}
+        <button type="submit" class="btn btn-primary">
+            Submit
+        </button>
+        {% csrf_token %}
+    </form>
+{% endblock %}

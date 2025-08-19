@@ -1,0 +1,191 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Title & Logo Image */
+
+#title-container {
+    width:200px;
+    color:white;
+    font-family: 'Lexend';
+}
+
+#title {
+    font-size:20px;
+    margin-bottom:2px;
+    margin-top:4px;
+    font-weight:bold;
+
+}
+#sub-title {
+    font-size:14px;
+    margin-bottom:0px;
+    color:#f9bf86;
+}
+
+#logo-img {
+    width:50px;
+    height: 50px;
+}
+
+
+/* Navigation Bar */
+
+.navbar {
+    background: #8E180b;
+    background: linear-gradient(135deg,#8e180b 0%, #bd210f 100%);
+}
+
+.navbar-brand {
+    padding: 0;
+    color: white;
+}
+
+.navbar-nav .nav-link {
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 50px;
+    line-height: 50px;
+}
+
+.main-option {font-family: 'Lexend';}
+
+.nav-item > a {color:#ffdfdb;}
+.nav-item > a:hover {color:#ffffff;}
+
+#login-btn, #logout-btn {
+    background-color:#d87e23;
+    border:0px;
+
+}
+
+#login-btn:hover, #logout-btn:hover {
+    background-color:#ffffff;
+    color:#f48c25;
+}
+
+#banner {
+    background-image:url('images/pattern01.jpg');
+    background-size:contain;
+    height:30px;
+    border:5px solid #76140a;
+}
+
+/* Header */
+#page-header {
+    background-color:#00000025;
+    border:5px solid #00000012;
+    padding:10px;
+    margin-top:10px;
+    margin-bottom:10px;
+    border-radius:10px;
+}
+
+#topic {
+    font-size:40px;
+    color:#222222;
+}
+
+#explanation {
+    font-size:15px;
+    color:#222222;
+}
+
+/* Content */
+
+#main-container {
+    background: linear-gradient(0deg, #fffffff5, #fffffff5), url('images/motif-2.jpg');
+    padding:0px;
+}
+
+#page-content {
+    padding:10px;
+    margin:auto;
+}
+
+.row-outline {
+    background-color:#00000008;
+    border:5px solid #00000004;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:10px;
+    box-shadow: 2px 2px 5px #0000004b;
+}
+
+.primary {
+    border:5px solid #bd210f;
+    background-color:#8e180b;
+}
+
+p {font-size:15px;}
+
+@media only screen and (max-width:400px) {
+    p {font-size:3.5vw;}
+}
+
+
+/* Footer */
+
+#footer {
+    height:115px;
+    background: linear-gradient(0deg, #8e180bf9, #8e180bf9), url('images/motif-3.jpg');
+    border-top:5px solid #76140a;
+    padding-top:20px;
+    padding-bottom:20px;
+    padding-left:40px;
+    padding-right:40px;
+    background-size:contain;
+}
+
+#footer-outline {
+    height:5px;
+    background-color: #76140a;
+    margin-bottom:3px;
+}
+
+
+/* Other */
+.active {
+    opacity: 1.0;
+}
+
+.footer {
+    margin-top: auto;
+    padding: 1rem 0;
+    background-color: #f1f1f1;
+    text-align: center;
+}
+
+main {
+    flex: 1;
+}
+
+.badge {
+padding: 0.4rem 0.6rem;
+font-weight: 500;
+border-radius: 4px;
+}
+
+.badge-SUBMITTED {
+    background-color: #e7df54;
+    color: #212529;
+}
+    
+.badge-CANCELLED {
+    background-color: #ab4d4d;
+    color: white;
+}
+
+.badge-COMPLETED {
+    background-color: #659e7b;
+    color: white;
+}
+
+.badge-CONFIRMED {
+    background-color: #5c6ab0;
+    color: white;
+}

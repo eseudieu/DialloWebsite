@@ -1,0 +1,52 @@
+
+/* Row 1 */
+
+.img-1 {
+    width:250px;
+    border:8px solid #8e180b;
+    box-shadow: 5px 5px 5px #0000004b;
+    border-radius:5px;
+    display:block;
+    margin:auto;
+}
+
+.head-1, .sub-1 {
+    font-family:'Lexend';
+    color:#76140a;
+}
+
+/* Row 2 */
+
+.profile {
+    width:275px;
+    border:5px solid #bd210f;
+    background-color:#8e180b;
+    box-shadow: 2px 2px 5px #0000004b;
+    border-radius:5px;
+    margin-bottom:10px;
+    padding:4px;
+}
+
+.img-2 {
+    width:85%;
+    border:3px solid #f9bf864d;
+    box-shadow: 5px 5px 5px #0000004b;
+    margin-top:10px;
+    display:block;
+}
+
+.card-title {
+    color:#ffffff;
+    font-family:'Lexend';
+}
+.card-subtitle {
+    color:#f9bf86;
+    font-family:'Lexend';
+}
+
+.text-2 {
+    color:white;
+    padding:12px;
+    margin-bottom:0px;
+}
+

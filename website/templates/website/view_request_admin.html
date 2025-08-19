@@ -1,0 +1,97 @@
+{% extends 'website/base.html' %}
+
+{% block title %} View Request | HVAC & More {% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" id="page_header"> 
+        <h1>  <strong> {{task.user.get_full_name}}'s Request </strong> </h1>
+        <h6> 
+            <span class="badge badge-{{task.status}}"><strong>{{task.status}}</strong></span> 
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Update status
+            </button>
+        </h6>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Update Status</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST">
+                            {{ status_form.as_p }}
+                            <button type="submit" name="update_status" style="margin-top: 3px;">Update</button>
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if task.status == 'COMPLETED'%}
+            <div class="card mb-4"> 
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    Review
+                </div>
+                <div class="card-body">
+                    <strong>Review Rating</strong>: {{task.get_review_rating_display}} <br>
+                    {{ task.review_text }} <br>
+                    <small class="text-muted"> <em> Last updated {{ task.review_date }}  </em> </small>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Task Information
+                    </div>
+                    <div class="card-body">
+                        <strong>Service Type</strong>: {{task.get_service_type_display}} <br>
+                        <strong>Submitted</strong>: {{task.submission_date}} <br>
+                        <strong>Description</strong>: <br>{{ task.description }} <br>
+                        {% if task.payment_date %}
+                            <strong>Payment Date: </strong> {{task.payment_date }} <br>
+                        {% endif %}
+                        {% if task.status == 'COMPLETED' %}
+                            <strong>Completion Date: </strong> {{ task.completed_date }}<br>
+                        {% elif task.status == 'CANCELLED' %}
+                            <strong>Cancellation Date: </strong> {{ task.cancelled_date }}<br>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Client Information
+                    </div>
+                    <div class="card-body">
+                        <strong>Email</strong>: {{task.email}} <br>
+                        <strong>Phone</strong>: {{task.phone_number}} <br>
+                        <small class="text-muted"> <em> Last updated {{ task.client_update_date }}  </em> </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+               <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Worker Information
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ info_form.as_p }}
+                            <button type="submit" name="update_info" style="margin-top: 3px;">Update</button>
+                            {% csrf_token %}
+                        </form>
+                        <small class="text-muted"> <em> Last updated {{ task.admin_update_date }} </em> </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

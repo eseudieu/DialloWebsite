@@ -1,0 +1,107 @@
+{% extends 'website/base.html' %}
+
+{% block title %} View Request | HVAC & More {% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" id="page_header"> 
+        <h1> {% if task.user == request.user %}Your{% else %}{{task.user.get_full_name}}'s{% endif %} Request </h1>
+        <h6> 
+            <span class="badge badge-{{task.status}}"><strong>{{task.status}}</strong></span> 
+            <span> <small class="text-muted"> <em>
+                {% if task.status == 'COMPLETED' %}
+                    The task has been completed, please leave a review and tell us about your experience!
+                {% elif task.status == 'SUBMITTED '%}
+                    Your query has been received, you will receive a phone or email from an administrator confirming it
+                {% elif task.status == 'CONFIRMED' %}
+                    Your query has been confirmed. An administrator will be in communication with you with regards to task specifics and a job date
+                {% elif task.status == 'CANCELLED' %}
+                    Your query was cancelled by an administrator. Feel free to contact us if you have any questions
+                {% endif %}
+            </em></small></span>
+            {% if task.price and not task.paid %}
+                <br>
+                <button type="button" class="btn btn-primary btn-sm mt-1" style="background-color: purple; border-color: purple;" onclick="window.location.href='{% url 'pay' task.id %}'">
+                    Pay with Stripe
+                </button>
+            {% endif %}
+        </h6>
+    </div>
+    <div class="container-fluid">
+        {% if task.status == 'COMPLETED' %}
+            <div class="card mb-4"> 
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    Leave a Review
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ review_form }}
+                        <button type="submit" name="update_review" style="margin-top: 3px;">Update</button>
+                        {% csrf_token %}
+                    </form>
+                    {% if task.review_date %}
+                        <small class="text-muted"> <em> Last updated {{ task.review_date }}  </em> </small>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Task Information
+                    </div>
+                    <div class="card-body">
+                        <strong>Service Type</strong>: {{task.get_service_type_display}} <br>
+                        <strong>Submitted</strong>: {{task.submission_date}} <br>
+                        <strong>Description</strong>: <br> {{ task.description }} <br>
+                        {% if task.payment_date %}
+                            <strong>Payment Date: </strong> {{task.payment_date}}<br>
+                        {% endif %}
+                        {% if task.status == 'COMPLETED' %}
+                            <strong>Completion Date: </strong> {{ task.completed_date }}<br>
+                        {% elif task.status == 'CANCELLED' %}
+                            <strong>Cancellation Date: </strong> {{ task.cancelled_date }}<br>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Client Information
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {{ info_form }}
+                            <button type="submit" name="update_info" style="margin-top: 3px;">Update</button>
+                            {% csrf_token %}
+                        </form>
+                        <small class="text-muted"> <em> Last updated {{ task.client_update_date }}  </em> </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+               <div class="card mb-4"> 
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Worker Information
+                    </div>
+                    <div class="card-body">
+                        <strong> Service Cost: </strong> {% if task.price %} ${{task.price}} (USD) {% else %}<small class="text-muted"> <em> Awaiting cost confirmation  </em> </small> {% endif %}<br>
+                        <strong> Tentative Service Date: </strong> {% if task.scheduled_date %}  {{task.scheduled_date}} {% else %} <small class="text-muted"> <em> Date not yet assigned for this task {% endif %} </em> </small> <br>
+                        <strong> Notes: </strong> <br> {{ task.notes }} <br>
+                        <small class="text-muted"> <em> Last updated {{ task.admin_update_date }}  </em> </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        }); 
+    </script>
+{% endblock %}

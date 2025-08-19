@@ -1,0 +1,37 @@
+{% extends 'website/base.html' %}
+
+{% block title %} About | HVAC & More {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="../../static/website/about.css">
+{% endblock %}
+
+{% block content %}
+
+    <div id="page-content" class="container">
+
+        <div class="row-outline">
+            <div class="row d-inline d-md-flex justify-content-center align-items-center">
+
+                <div class="col col-md-4 d-block d-md-flex justify-content-end">
+                    <img src="../../static/website/images/placeholder.jpg" class="img-fluid d-md-flex img-1">         
+                </div>
+
+                <div class="col col-md-7 d-inline d-md-flex justify-content-center">
+                    <div>
+                        <h3 class="head-1">Title</h3>
+                        <h4 class="sub-1">Sub-title</h4>
+                        <p class="text-1">
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
