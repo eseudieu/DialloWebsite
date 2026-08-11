@@ -31,15 +31,10 @@ urlpatterns = [
     path("login/", views.login_action, name='login'), 
     path("projects", views.projects_action, name='projects'), 
     path("request-service", views.request_service_action, name='request-service'),
-    path("request-service/success/<int:id>", views.success_action, name='success'),
-    path("request-service/cancelled/<int:id>/<str:price_id>", views.cancelled_action, name='cancelled'),
     path("view-request/<int:id>", views.view_request_action, name='view-request'),
-    path("view-request/pay/<int:id>", views.create_checkout_session, name='pay'),
+    path("view-request/pay/<int:id>", views.pay_with_zelle_action, name='pay'),
     path("service-history", views.service_history_action, name='service-history'),
     path("about", views.about_action, name='about'),
     path("logout", views.logout_action, name='logout'),
-
-    # API call paths
-    path('stripe_config/', views.stripe_config),  # new
 ]
  

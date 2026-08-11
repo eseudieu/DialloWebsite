@@ -30,8 +30,8 @@ class Task(models.Model):
     STATUS_CHOICES = (
         ('SUBMITTED', 'Submitted'),
         ('CONFIRMED', 'Confirmed'),
+        ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled'),
-        ('COMPLETED', 'Completed')
     )
 
     TASK_TYPE_CHOICES = (

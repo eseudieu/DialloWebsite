@@ -27,6 +27,8 @@ CONFIG.read(BASE_DIR / "config.ini")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG.get("Django", "secret")
+ADAMA_EMAIL = CONFIG.get("Admins", 'adama_email')
+ADAMA_PHONE = CONFIG.get("Admins", 'adama_phone')
 ADMIN_LIST = json.loads(CONFIG.get("Admins", "admins"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -149,9 +151,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = CONFIG.get("GoogleOAuth2", "client_id")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = CONFIG.get("GoogleOAuth2", "client_secret")
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'prompt': 'select_account'}
 SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['fullname', 'picture', 'email', 'name']
-
-STRIPE_PUBLIC = CONFIG.get("Stripe", 'publishable_key')
-STRIPE_PRIVATE = CONFIG.get("Stripe", 'secret_key')
 
 LOGIN_URL = '/oauth/login/google-oauth2/'
 LOGIN_REDIRECT_URL = 'oauth-landing'

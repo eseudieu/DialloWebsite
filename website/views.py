@@ -1,15 +1,14 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.utils import timezone
 from django.db import transaction
-from django.http.response import JsonResponse
 from website.forms import RequestServiceForm, ServiceReviewForm, AdminTaskUpdateForm, ClientTaskUpdateForm, StatusUpdateForm
 from website.models import Task
-from DialloWebsite.settings import ADMIN_LIST, STRIPE_PUBLIC, STRIPE_PRIVATE, SERVER_EMAIL, SERVER_PASS
-import stripe, smtplib
+from DialloWebsite.settings import ADMIN_LIST, SERVER_EMAIL, SERVER_PASS, ADAMA_EMAIL, ADAMA_PHONE
+import smtplib
+from email.mime.text import MIMEText
 from email.message import EmailMessage
 
 # Decorator to provide authentication checks
@@ -32,7 +31,7 @@ def auth_factory(auth_type=None):
 # Email sending
 def send_email(recipient='', subject='', content=''):
     msg = EmailMessage()
-    msg.set_content(content)
+    msg.set_content(MIMEText(content, 'html'))
     msg['From'], msg['To'], msg['Subject'] = SERVER_EMAIL, recipient, subject
 
     try:
@@ -49,6 +48,7 @@ def send_email(recipient='', subject='', content=''):
 def login_action(request):
     return redirect('/oauth/login/google-oauth2/')
 
+# Establish if user is an administrator before proceeding
 @auth_factory()
 def oauth_landing(request):
     user = request.user
@@ -83,7 +83,7 @@ def about_action(request):
 @auth_factory('client')
 def request_service_action(request):
     if request.method == 'POST': # someone has sent in a service request, either display error messages or success screen 
-        with transaction.atomic():
+        with transaction.atomic(): # create a new task object and fill it with details
             new_task = Task()
             new_task.user = request.user
             new_task.email = request.user.email
@@ -91,7 +91,7 @@ def request_service_action(request):
 
             if not service_form.is_valid():
                 messages.error(request, 'Invalid input')
-                # Display errors in appropriate places
+                #? Display errors in appropriate places
                 return render(request, 'website/request_service.html', {'form': service_form})
 
             new_task.submission_date = new_task.client_update_date = new_task.admin_update_date = timezone.now()
@@ -105,10 +105,9 @@ def request_service_action(request):
             send_email(recipient='selvinjr04@gmail.com', subject=server_subject, content=server_content)
 
             client_subject = f"New Request Submitted: {new_task.get_service_type_display()}"
-            # ?CHANGE NUMBER FOR PRODUCTION, DATE FORMATTING
-            client_content = (f'We have successfully received your request for (request type) and will get back to you shortly. If you do not receive a phone call or email to the registered points of contact (Phone: {new_task.phone_number}; Email: {new_task.email}) within 48 hours, feel free to call us at {5+5}. Below is a copy of your request as a receipt:\n\n'
+            client_content = (f'We have successfully received your <a href=\'\'>request</a> and will get back to you shortly. If you do not receive a phone call or email to the registered points of contact (Phone: {new_task.phone_number}; Email: {new_task.email}) within 48 hours, feel free to call us at {ADAMA_PHONE} or email us at {ADAMA_EMAIL}. Below is a copy of your request as a receipt:\n\n'
             f'Task type: {new_task.get_service_type_display()}\n'
-            f'Submission date: {new_task.submission_date}\n'
+            f'Submission date: {new_task.submission_date.strftime("%d-%m-%Y @ %H:%M:%S")}\n'
             f'Task description: {new_task.description}\n'
             f'Associated email: {new_task.email}\nAssociated phone: {new_task.phone_number}')
             
@@ -133,7 +132,6 @@ def view_request_action(request, id):
         # admin updated the status of the request
         if 'update_status' in request.POST and request.user.is_admin():
             status_form = StatusUpdateForm(request.POST, request.FILES, instance=task)
-            # ? SEND ONE EMAIL FOR ALL CHANGES IN PRODUCTION
             if status_form.is_valid():
                 if 'status' in status_form.changed_data:
                     messages.success(request, f"Successfully updated status to {status_form.cleaned_data['status']}")
@@ -145,18 +143,17 @@ def view_request_action(request, id):
                         task.confirmed_date = timezone.now()
                     subject = f"New status for {task.get_service_type_display()}"
                     content = (f'The status of your request ({task.get_service_type_display()}) has been updated to ({task.status}).\n\n'
-                                f'View the request here.\n\n' # ? HYPERLINK THIS IN PRODUCTION
-                                f'If you have any questions, please call us at (Adama’s number).')
+                                f'<a href=\'\'>View the request here</a>.\n\n'
+                                f'If you have any questions, please call us at {ADAMA_PHONE}, or email us at {ADAMA_EMAIL}.')
                     send_email(recipient=task.email, subject=subject, content=content)
                 if 'paid' in status_form.changed_data and task.paid == True:
                     task.payment_date = timezone.now()
                     subject = f"Payment recieved for {task.get_service_type_display()}"
-                    # ? UPDATE WITH ADAMA'S NUMBER FOR PRODUCTION
-                    content = f'We have received your payment. Pleasure doing business with you. If you would like to leave a review, visit your request here. If you have any questions, please call us at (Adama’s number).'
+                    content = f'We have received your payment. Pleasure doing business with you. If you would like to leave a review, <a href=\'\'>visit your request here</a>. If you have any questions, please call us at {ADAMA_PHONE}, or email us at {ADAMA_EMAIL}.'
                     send_email(recipient=task.email, subject=subject, content=content)
                 task.save()
             else: 
-                messages.error(request, 'Invalid input')
+                messages.error(request, 'Invalid changes')
             return redirect(reverse('view-request', args=[id]))
         if 'update_review' in request.POST and not request.user.is_admin():
             if not task.review_rating:
@@ -167,14 +164,13 @@ def view_request_action(request, id):
                 task.save()
                 messages.success(request, 'Successfully submitted review')
             else:
-                messages.error(request, 'Invalid input')
+                messages.error(request, 'Invalid changes.')
             if new_review:
                 subject = f"New Review for {task.get_service_type_display()}"
                 content = f'We have received your review'
                 send_email(recipient=task.email, subject=subject, content=content)
             return redirect(reverse('view-request', args=[id]))
         if 'update_info' in request.POST:
-            # ? SEND ONE EMAIL FOR ALL CHANGES IN PRODUCTION
             if request.user.is_admin():
                 # admin updated details of the request
                 info_form = AdminTaskUpdateForm(request.POST, request.FILES, instance=task)
@@ -183,16 +179,15 @@ def view_request_action(request, id):
                     task.save()
                     messages.success(request, 'Successfully updated task information')
                 else:
-                    messages.error(request, 'Invalid input')
+                    messages.error(request, 'Invalid changes')
+                # email client upon admin change
                 if 'price' in info_form.changed_data:
                     subject = f"Payment requested for {task.get_service_type_display()}"
-                    # ? HYPERLINK THIS FOR PRODUCTION
-                    content = f'A payment amount of {task.price} has been specified for your request. Visit your request and pay ASAP. If you have any questions, please call us at (Adama’s number).'
+                    content = f'A payment amount of {task.price} has been specified for your request. <a href=\'\'>View the request here</a> and pay via Zelle to {ADAMA_PHONE}. If you have any questions, please call us at {ADAMA_PHONE}, or email us at {ADAMA_EMAIL}.'
                     send_email(recipient=task.email, subject=subject, content=content)
                 if 'scheduled_date' in info_form.changed_data:
                     subject = f"Date scheduled for {task.get_service_type_display()}"
-                    # ? HYPERLINK THIS FOR PRODUCTION, CHANGE DATE
-                    content = f'Your request has been scheduled for {task.scheduled_date} If you have any questions, please call us at (Adama’s number).'
+                    content = f'Your <a href=\'\'>request</a> has been scheduled for {task.scheduled_date.strftime("%d-%m-%Y @ %H:%M:%S")} If you have any questions, please call us at {ADAMA_PHONE} or email us at {ADAMA_EMAIL}.'
                     send_email(recipient=task.email, subject=subject, content=content)
                 return redirect(reverse('view-request', args=[id]))
             else:
@@ -201,9 +196,9 @@ def view_request_action(request, id):
                 if info_form.is_valid():
                     task.client_update_date = timezone.now()
                     task.save()
-                    messages.success(request, 'Successfully updated task information')
+                    messages.success(request, 'Successfully updated task information.')
                 else:
-                    messages.error(request, 'Invalid input')
+                    messages.error(request, 'Invalid changes. Make sure you are using a valid phone number and email.')
                 return redirect(reverse('view-request', args=[id]))
             
         # neither update_status nor update_info were in the request
@@ -226,7 +221,7 @@ def view_request_action(request, id):
 def service_history_action(request):
     if request.method == 'POST':
         messages.error(request, "Invalid request")
-        redirect('home')
+        return redirect('home')
     
     if request.user.is_admin():
         tasks = Task.objects.all().order_by('-submission_date')
@@ -234,80 +229,24 @@ def service_history_action(request):
         tasks = request.user.service_requests.all().order_by('-submission_date')
     return render(request, 'website/service_history.html', {'tasks': tasks})
 
-# Stripe calls
-@csrf_exempt
-def stripe_config(request):
-    if request.method == 'GET':
-        stripe_config = {'publicKey': STRIPE_PUBLIC}
-        return JsonResponse(stripe_config, safe=False)
-    
-@csrf_exempt
 @auth_factory()
-def create_checkout_session(request, id):
+def pay_with_zelle_action(request, id):
     task = get_object_or_404(Task, id=id)
+
+    if request.method == 'POST':
+        messages.error(request, 'Invalid request')
+        return redirect('home')
+
     if not task.price:
-        messages.error('Price has not been set yet for this task')
+        messages.error(request, 'Price has not been set yet for this task')
         return redirect(reverse('view-request', args=[id]))
-    
+
     if task.user != request.user:
         messages.error(request, "You do not have permission to view this page")
         return redirect('home')
-    
-    if request.method == 'GET':
-        stripe.api_key = STRIPE_PRIVATE
-        # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
-        try:
-            price = stripe.Price.create(
-                currency="usd",
-                product_data={"name": f"HVAC & More: {task.get_service_type_display()}"},
-                unit_amount_decimal=task.price * 100,
-            )
 
-            price_id = price['id']
-            checkout_session = stripe.checkout.Session.create(
-                success_url=request.build_absolute_uri(reverse('success', args=[id])),
-                cancel_url=request.build_absolute_uri(reverse('cancelled', args=[id, price_id])),
-                mode='payment',
-                line_items=[
-                    {
-                        'price': price,
-                        'quantity': 1,
-                    }
-                ]
-            )
-            return redirect(checkout_session.url, code=303)
-        except Exception as e:
-            messages.error(request, 'Unexpected error while opening payment service. Try again')
-            return redirect('home')
-        
-    messages.error(request, 'Invalid request')
-    return redirect('home')
-
-@auth_factory()
-def success_action(request, id):
-    if request.method == 'POST':
-        messages.error(request, 'Invalid request')
-        return redirect('home')
-    
-    task = get_object_or_404(Task, id=id)
-    if task.user != request.user:
-        messages.error(request, "You do not have permission to view this page")
-        return redirect('home')
-    
-    messages.success(request, 'Payment successful.')
-
-    return redirect(reverse('view-request', args=[id]))
-
-@auth_factory()
-def cancelled_action(request, id, price_id):
-    if request.method == 'POST':
-        messages.error(request, 'Invalid request')
-        return redirect('home')
-    
-    task = get_object_or_404(Task, id=id)
-    if task.user != request.user:
-        messages.error(request, "You do not have permission to view this page")
-        return redirect('home')
-    
-    messages.error(request, 'Payment cancelled.')
+    messages.info(
+        request,
+        f'Please send your payment of ${task.price} via Zelle to {ADAMA_PHONE}. Include request #{task.id} in the memo.'
+    )
     return redirect(reverse('view-request', args=[id]))

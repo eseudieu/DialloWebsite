@@ -139,6 +139,9 @@ p {font-size:15px;}
     padding-left:40px;
     padding-right:40px;
     background-size:contain;
+    color: white;
+    font-size: 20px;
+    text-align: justify;
 }
 
 #footer-outline {

@@ -9,18 +9,7 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                {% if user.is_admin %} 
-                    Service Requests 
-                    <div class="mt-2">
-                        <!-- Simple filter dropdown -->
-                        <select class="form-select form-select-sm" id="home-request-filter">
-                            <option value="all" selected>All Requests</option>
-                            <option value="Submitted">Submitted</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                {% else %} Your Service Requests {% endif %}
+                {% if user.is_admin %} Service Requests {% else %} Your Service Requests {% endif %}
             </h5>
         </div>
         <div class="card-body">
@@ -32,6 +21,7 @@
                         <th>Service Type</th>
                         <th>Submission Date</th>
                         <th>Status</th>
+                        {% if user.is_admin %} <th>Reviewed</th> {% endif %}
                         <th>Action</th>
                     </thead>
                     <tbody>
@@ -44,6 +34,7 @@
                                 <span class="badge badge-{{task.status}}"><strong>{{task.status}}</strong></span>
                                 <div style="font-weight: bold; font-size: 10px"> {{ task.last_update }} </div>
                             </td>
+                            {% if user.is_admin %} <td> {% if task.review_rating %} Yes {% else %} No {% endif %}</td> {% endif %}
                             <td>
                                 <a href="{% url 'view-request' task.id %}">
                                 {% if task.status == 'COMPLETED' and not request.user.is_admin %} Review {% else %} View {% endif %}

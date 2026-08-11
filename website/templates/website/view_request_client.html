@@ -24,7 +24,7 @@
             {% if task.price and not task.paid %}
                 <br>
                 <button type="button" class="btn btn-primary btn-sm mt-1" style="background-color: purple; border-color: purple;" onclick="window.location.href='{% url 'pay' task.id %}'">
-                    Pay with Stripe
+                    Pay with Zelle
                 </button>
             {% endif %}
         </h6>
@@ -87,7 +87,8 @@
                         Worker Information
                     </div>
                     <div class="card-body">
-                        <strong> Service Cost: </strong> {% if task.price %} ${{task.price}} (USD) {% else %}<small class="text-muted"> <em> Awaiting cost confirmation  </em> </small> {% endif %}<br>
+                        <strong> Service Cost: </strong> {% if task.price %} ${{task.price}} (USD) {% else %}<small class="text-muted"> <em> Awaiting cost confirmation  </em> </small> {% endif %}
+                        {% if task.paid %} <span class="badge badge-COMPLETED"><strong>PAYMENT RECEIVED</strong></span> {% endif %}  <br>
                         <strong> Tentative Service Date: </strong> {% if task.scheduled_date %}  {{task.scheduled_date}} {% else %} <small class="text-muted"> <em> Date not yet assigned for this task {% endif %} </em> </small> <br>
                         <strong> Notes: </strong> <br> {{ task.notes }} <br>
                         <small class="text-muted"> <em> Last updated {{ task.admin_update_date }}  </em> </small>

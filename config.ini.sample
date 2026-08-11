@@ -7,11 +7,8 @@ client_secret:
 
 [Admins]
 adama_email:
+adama_phone:
 admins:
-
-[Stripe]
-publishable_key:
-secret_key: 
 
 [Paypal]
 client_id:
